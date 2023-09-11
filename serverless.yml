@@ -1,0 +1,70 @@
+service: tokenization-ts
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  environment:
+    NODE_ENV: dev
+  vpc:
+    securityGroupIds:
+      - sg-06ee66804ae96e883
+    subnetIds:
+      - subnet-05ffab68af51128c3
+      - subnet-045822eb223153bb5
+      - subnet-07dce99c0fc2feb01
+      - subnet-0ea2eefd103d2eced
+      - subnet-05873a4d30830bafb
+      - subnet-0118e8b5d4b1fbe96
+
+plugins:
+  - serverless-plugin-typescript 
+  - serverless-offline
+
+package:
+  exclude:
+    - config/.env.stg
+    - config/.env.pro
+  include:
+    - config/.env.dev
+
+functions:
+  # create:
+  #   handler: app/handler.create
+  #   events:
+  #     - http:
+  #         path: books
+  #         method: post
+  # update:
+  #   handler: app/handler.update
+  #   events:
+  #     - http:
+  #         path: books/{id}
+  #         method: put
+  # find:
+  #   handler: app/handler.find
+  #   events:
+  #     - http:
+  #         path: books
+  #         method: get
+  # findOne:
+  #   handler: app/handler.findOne
+  #   events:
+  #     - http:
+  #         path: books/{id}
+  #         method: get
+
+  # deleteOne:
+  #   handler: app/handler.deleteOne
+  #   events:
+  #     - http:
+  #         path: books/{id}
+  #         method: delete
+  
+  tokenization:
+    handler: app/handler.tokenization
+    events:
+      - http:
+          path: tokenization
+          method: POST
