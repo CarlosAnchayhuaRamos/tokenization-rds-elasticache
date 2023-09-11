@@ -9,6 +9,7 @@ provider:
     NODE_ENV: dev
   vpc:
     securityGroupIds:
+      - sg-06e932ebc1224be84
       - sg-06ee66804ae96e883
     subnetIds:
       - subnet-05ffab68af51128c3
@@ -17,6 +18,12 @@ provider:
       - subnet-0ea2eefd103d2eced
       - subnet-05873a4d30830bafb
       - subnet-0118e8b5d4b1fbe96
+# custom:
+#   POSTGRESQL:
+#     HOST:
+#       Fn::GetAtt: [PostgreSqlRDSInstance, database-2.chzoewnvixcm.us-east-1.rds.amazonaws.com]
+#     PORT:
+#       Fn::GetAtt: [PostgreSqlRDSInstance, 5432]
 
 plugins:
   - serverless-plugin-typescript 

@@ -1,4 +1,5 @@
 import { ResponseVO } from '../model/vo/responseVo';
+import { ValidationError } from 'class-validator';
 
 enum StatusCode {
   success = 200,
@@ -46,3 +47,16 @@ export class MessageUtil {
     return result.bodyToString();
   }
 }
+
+export const parseValidationErrors = (errors: ValidationError[]): string => {
+  const errorMessages = errors.reduce((acc, element) => {
+    const property = Object.values(element.constraints).reduce(
+      (_, valueproperty) => {
+        return valueproperty;
+      },
+      '',
+    );
+    return `${acc}${acc ? '-- ' : ''}${property}`;
+  }, '');
+  return `${errorMessages}`;
+};

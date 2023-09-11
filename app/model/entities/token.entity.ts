@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  NumericType,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,25 +13,25 @@ export class Tokens {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 50 })
+  @Column()
   name: string;
 
-  @Column({ length: 50 })
+  @Column()
   lastname: string;
 
-  @Column({ length: 50 })
+  @Column()
   email: string;
 
-  @Column({ length: 16 })
+  @Column( 'numeric' )
   card_number: number;
 
-  @Column({ length: 4 })
+  @Column()
   cvv: number;
 
-  @Column({ length: 4 })
+  @Column()
   expiration_year: string;
 
-  @Column({ length: 2 })
+  @Column()
   expiration_month: string;
 
   @Column({ type: 'enum', enum: StatusEnum, default: StatusEnum.ACTIVATED })

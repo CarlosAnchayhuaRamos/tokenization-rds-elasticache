@@ -26,33 +26,21 @@ import { Tokens } from '../model/entities/token.entity'; // Importa tus entidade
 //   }
 // }
 
-export class DbService {
-
-  async connect(): Promise<void> {
-    const myDataSource = new DataSource({
-      type: 'postgres',
-      host: 'database-1.chzoewnvixcm.us-east-1.rds.amazonaws.com',
-      port: 5432, // El puerto predeterminado de PostgreSQL
-      username: 'postgres',
-      password: 'postgres',
-      database: 'database-1',
-      entities: [Tokens], // Lista de entidades que has definido,
-      logging: true,
-      synchronize: true,
-    });
-
-    const connection = myDataSource
-    .initialize()
-    .then(() => {
-        console.log("Data Source has been initialized!")
-    })
-    .catch((err) => {
-        console.error("Error during Data Source initialization:", err)
-    });
+export const myDataSource = new DataSource({
+  type: 'postgres',
+  host: 'database-3.chzoewnvixcm.us-east-1.rds.amazonaws.com',
+  port: 5432, // El puerto predeterminado de PostgreSQL
+  username: 'postgres',
+  password: 'postgres',
+  database: 'datababase1',
+  entities: [Tokens], // Lista de entidades que has definido,
+  logging: true,
+  synchronize: true,
+  ssl: {
+    rejectUnauthorized: false,
     
-    return connection;
-
-  }
+  },
+});
     
   // const myDataSource = new DataSource({
   //   type: 'postgres',
@@ -76,5 +64,5 @@ export class DbService {
   // });
   
   // export = connection;
-}
+
 
