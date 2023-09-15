@@ -1,5 +1,4 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
-import { Model } from 'mongoose';
 import { Service } from "typedi";
 import { MessageUtil, parseValidationErrors } from '../utils/message';
 import { TokensService } from '../service/token.service';

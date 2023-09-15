@@ -25,7 +25,7 @@ export const tokenization: Handler = async (event: any, context: Context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     // await dbService.connect();
 
-    myDataSource
+    await myDataSource
     .initialize()
     .then(() => {
         console.log("Data Source has been initialized!")

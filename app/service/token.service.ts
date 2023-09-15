@@ -5,6 +5,9 @@ import Container from "typedi";
 import { Tokens } from '../model/entities/token.entity';
 import { Service } from "typedi";
 import { myDataSource } from '../model/postgresql-db';
+// import { client } from '../model/cache-manager';
+
+import { createCluster, createClient } from 'redis';
 
 // const dataSource = Container.get(myDataSource);
 
@@ -34,16 +37,45 @@ export class TokensService {
       });
       console.log(result);
       
-
+      console.log("result end");
       if(!result){
         throw new Error("Los datos ingresados son inconrrectos.");
       }
+
+      console.log("exist");
 
       const tokenGenerator = new TokenGenerator();
       const token = tokenGenerator.generateToken();
       console.log('Token generado:', token);
 
-      return {token};
+
+      console.log('conect redis');
+      
+      // const client  = createCluster({
+      //   rootNodes: [
+      //     {
+      //       url: 'clusterforlambdatest.vs1sss.cfg.use1.cache.amazonaws.com:11211'
+      //     },
+      // ]
+      // });
+
+      const client  = createClient({
+        url: 'redis://testingredis2.vs1sss.clustercfg.memorydb.us-east-1.amazonaws.com:6379',
+        socket: { tls: true },
+      });
+      console.log('conect redis 2');
+      client.on('error', err => console.log('Redis Client Error', err));
+
+      console.log('conect redis 3');
+      await client.connect();
+      console.log('set redis');
+      await client.json.set('token', '$', {token: token, ...result});
+      console.log('get redis');
+      const value = await client.get('token');
+      await client.quit();
+
+      return {token, ...{value}};
+      // return {token}
       
     } catch (err) {
       console.error(err);

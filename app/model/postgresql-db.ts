@@ -38,7 +38,6 @@ export const myDataSource = new DataSource({
   synchronize: true,
   ssl: {
     rejectUnauthorized: false,
-    
   },
 });
     
