@@ -35,7 +35,9 @@ _A continuación, se muestra un ejemplo de cómo instalar y configurar la aplica
 
 ### endpoints:
 
+
   POST - https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/tokenization
+
   POST - https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/findData
 
 ### functions:
@@ -49,7 +51,7 @@ Para uso del endpoint es necesario que tengamos una tarjeta registrada en la bas
 ```body
 {
   'email': 'canchayhuar@uni.pe',
-  'card_number': 1234567890123456,
+  'card_number': 4111111111111111,
   'cvv': 123,
   'expiration_year': 2026,
   'expiration_month': 10
