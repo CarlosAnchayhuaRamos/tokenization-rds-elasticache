@@ -1,15 +1,9 @@
 import { TokenGenerator } from '../utils/token/generateToken';
 import { CreateTokenDTO } from '../model/dto/createTokenDTO';
-import { Repository } from 'typeorm';
-import Container from "typedi";
 import { Tokens } from '../model/entities/token.entity';
-import { Service } from "typedi";
+import { Service } from 'typedi';
 import { myDataSource } from '../model/postgresql-db';
-// import { client } from '../model/cache-manager';
-
-import { createCluster, createClient } from 'redis';
-
-// const dataSource = Container.get(myDataSource);
+import { client } from '../model/cache-manager';
 
 @Service()
 export class TokensService {
@@ -21,62 +15,146 @@ export class TokensService {
    * @param params
    */
   async createToken (param: CreateTokenDTO): Promise<object> {
-    const creatToken = param;
     try {
-      console.log(creatToken);
-      const repository = myDataSource.getRepository(Tokens)
-      const result = await repository.findOne({
-        where: [
-            { 
-              email: param.email,
-              card_number: param.card_number,
-              cvv: param.cvv, expiration_year: param.expiration_year,
-              expiration_month: param.expiration_month 
-            }
-        ],
-      });
-      console.log(result);
-      
-      console.log("result end");
-      if(!result){
-        throw new Error("Los datos ingresados son inconrrectos.");
+      const esValido = this.validations(param);
+      if (!esValido) {
+        throw new Error('Los datos ingresados son inconrrectos, revisalos por favor!');
       }
 
-      console.log("exist");
+      const repository = myDataSource.getRepository(Tokens);
+      const result = await repository.findOne({
+        where: [
+          {
+            email: param.email,
+            cardNumber: param.cardNumber,
+            cvv: param.cvv,
+            expirationYear: param.expirationYear,
+            expirationMonth: param.expirationMonth,
+          }],
+      });
+
+      if (!result) {
+        throw new Error('Tarjeta no encontrada.');
+      }
 
       const tokenGenerator = new TokenGenerator();
       const token = tokenGenerator.generateToken();
-      console.log('Token generado:', token);
 
-
-      console.log('conect redis');
-      
-      // const client  = createCluster({
-      //   rootNodes: [
-      //     {
-      //       url: 'clusterforlambdatest.vs1sss.cfg.use1.cache.amazonaws.com:11211'
-      //     },
-      // ]
-      // });
-
-      const client  = createClient({
-        url: 'redis://testingredis2.vs1sss.clustercfg.memorydb.us-east-1.amazonaws.com:6379',
-        socket: { tls: true },
-      });
-      console.log('conect redis 2');
-      client.on('error', err => console.log('Redis Client Error', err));
-
-      console.log('conect redis 3');
       await client.connect();
-      console.log('set redis');
-      await client.json.set('token', '$', {token: token, ...result});
-      console.log('get redis');
-      const value = await client.get('token');
+
+      const data = JSON.stringify(result);
+
+      await client.set(token, data, { EX: 900 });
+
       await client.quit();
 
-      return {token, ...{value}};
-      // return {token}
-      
+      return { token };
+
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  validations(objeto) {
+    if (!objeto || typeof objeto !== 'object') {
+      return false;
+    }
+
+    const { email, card_number, cvv, expiration_year, expiration_month } = objeto;
+
+    // Validación de email
+    if (typeof email !== 'string'
+    || email?.length < 5
+    || email?.length > 100
+    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return false;
+    }
+
+    // Validación de cvv
+    if (typeof cvv !== 'number'
+    || (cvv < 100 || cvv > 9999)
+    || (cvv.toString()?.length !== 3
+    && cvv.toString()?.length !== 4)) {
+      return false;
+    }
+    // Validación de card_number
+    if (typeof card_number !== 'number'
+    || (card_number.toString()?.length < 13
+    || card_number.toString()?.length > 16)
+    || !this.luhnValidation(card_number)) {
+      return false;
+    }
+
+    // Validación de expiration_year
+    const yearActual = new Date().getFullYear();
+    if (typeof expiration_year !== 'number'
+      || expiration_year.toString()?.length !== 4
+      || expiration_year < yearActual
+      || expiration_year > yearActual + 5) {
+      return false;
+    }
+    // Validación de expiration_month
+    if (typeof expiration_month !== 'number'
+      || (expiration_month < 1
+      || expiration_month > 12)
+      || (expiration_month.toString()?.length !== 1
+      && expiration_month.toString()?.length !== 2)) {
+      return false;
+    }
+    return true;
+  }
+
+  luhnValidation(numeroTarjeta: number): boolean {
+    const digits = numeroTarjeta.toString().split('').map(Number);
+    let sum = 0;
+    let alt = false;
+
+    for (let i = digits?.length - 1; i >= 0; i = i - 1) {
+      let curr = digits[i];
+      if (alt) {
+        curr *= 2;
+        if (curr > 9) {
+          curr -= 9;
+        }
+      }
+      sum += curr;
+      alt = !alt;
+    }
+
+    return sum % 10 === 0;
+  }
+
+  /**
+   * Create book
+   * @param params
+   */
+  async findData (param: string): Promise<object> {
+    try {
+
+      if (await !this.validarToken(param)) {
+        throw new Error('Token invalido.');
+      }
+
+      await client.connect();
+
+      const value = await client.get(param);
+
+      const objeto = JSON.parse(value);
+
+      await client.quit();
+
+      if (objeto) {
+        throw new Error('Token vencido o no encontrado.');
+      }
+
+      return {
+        email: objeto.email,
+        card_number: objeto.card_number,
+        expiration_year: objeto.expiration_year,
+        expiration_month: objeto.expiration_month,
+      };
+
     } catch (err) {
       console.error(err);
 
@@ -84,37 +162,13 @@ export class TokensService {
     }
   }
 
-  luhnValidation(numeroTarjeta: string): boolean {
-    // Paso 1: Invertir el número de tarjeta
-    const numeroInvertido = numeroTarjeta.split('').reverse().join('');
-  
-    // Paso 2: Inicializar variables
-    let sumaDigitos = 0;
-    let doble = false;
-  
-    // Paso 3: Recorrer cada dígito
-    for (let i = 0; i < numeroInvertido.length; i++) {
-      const digito = parseInt(numeroInvertido[i], 10);
-  
-      // Paso 4: Si es un dígito par, duplicarlo
-      if (doble) {
-        let digitoDoble = digito * 2;
-  
-        // Si el resultado es mayor o igual a 10, sumar los dígitos
-        if (digitoDoble >= 10) {
-          digitoDoble = digitoDoble - 9;
-        }
-  
-        sumaDigitos += digitoDoble;
-      } else {
-        sumaDigitos += digito;
-      }
-  
-      // Alternar entre duplicar y no duplicar para el siguiente dígito
-      doble = !doble;
+  validarToken(token: string) {
+    if (token?.length !== 16) {
+      return false;
     }
-  
-    // Paso 5: La tarjeta es válida si la suma total es un múltiplo de 10
-    return sumaDigitos % 10 === 0;
+
+    const caracteresUnicos = new Set(token);
+    const esAlfanumerico = /^[0-9a-zA-Z]+$/.test(token);
+    return caracteresUnicos.size === 16 && esAlfanumerico;
   }
 }

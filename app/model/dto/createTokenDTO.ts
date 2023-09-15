@@ -13,7 +13,7 @@ export class CreateTokenDTO {
 
   @Expose()
   @Length(13, 16)
-  card_number: number;
+  cardNumber: number;
 
   @Expose()
   @Length(3, 4)
@@ -21,9 +21,9 @@ export class CreateTokenDTO {
 
   @Expose()
   @Length(4, 4)
-  expiration_year: string;
+  expirationYear: string;
 
   @Expose()
   @Length(1, 2)
-  expiration_month: string;
+  expirationMonth: string;
 }

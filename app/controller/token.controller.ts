@@ -1,45 +1,48 @@
-import { APIGatewayEvent, Context } from 'aws-lambda';
-import { Service } from "typedi";
+import { APIGatewayEvent } from 'aws-lambda';
+import { Service } from 'typedi';
 import { MessageUtil, parseValidationErrors } from '../utils/message';
 import { TokensService } from '../service/token.service';
 import { CreateTokenDTO } from '../model/dto/createTokenDTO';
-import { validate } from "class-validator";
+import { validate } from 'class-validator';
 
 @Service()
 export class TokensController {
   constructor(private tokensService: TokensService) {}
 
-  // /**
-  //  * Create book
-  //  * @param {*} event
-  //  */
   async tokenization (event: APIGatewayEvent) {
-
-    const params: CreateTokenDTO = JSON.parse(event.body);
-
     try {
+      if (event.headers['Authorization'] !== 'Bearer pk_test_LsRBKejzCOEEWOsw') {
+        throw new Error('Token inconrrecto.');
+      }
 
-      console.log(params);
+      const params: CreateTokenDTO = JSON.parse(event.body);
 
-      console.log("-------------------validaciones--------------------");
-      // Validate the ReceiptNotification object using class-validator library
       const dtoValidation = await validate(params);
-      console.log(dtoValidation);
-      
-      if (dtoValidation && dtoValidation.length > 0) {
-        // If there are validation errors, return an error message
+
+      if (dtoValidation && dtoValidation?.length > 0) {
         const errors = parseValidationErrors(dtoValidation);
         return MessageUtil.error(404, errors);
       }
-      
-      const result = await this.tokensService.createToken(params);
 
+      const result = await this.tokensService.createToken(params);
       return MessageUtil.success(result);
     } catch (err) {
       console.error(err);
-
       return MessageUtil.error(err.code, err.message);
     }
   }
 
+  async findData (event: APIGatewayEvent) {
+    try {
+      if (event.headers['Authorization'] !== 'Bearer pk_test_LsRBKejzCOEEWOsw') {
+        throw new Error('Token inconrrecto.');
+      }
+      const param = JSON.parse(event.body);
+      const result = await this.tokensService.findData(param.token);
+      return MessageUtil.success(result);
+    } catch (err) {
+      console.error(err);
+      return MessageUtil.error(err.code, err.message);
+    }
+  }
 }

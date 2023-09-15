@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  NumericType,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,35 +11,24 @@ import { StatusEnum } from '../../utils/enums/status.enum';
 export class Tokens {
   @PrimaryGeneratedColumn()
   id: number;
-
   @Column()
   name: string;
-
   @Column()
   lastname: string;
-
   @Column()
   email: string;
-
-  @Column( 'numeric' )
-  card_number: number;
-
+  @Column({ name: 'card_number' })
+  cardNumber: number;
   @Column()
   cvv: number;
-
-  @Column()
-  expiration_year: string;
-
-  @Column()
-  expiration_month: string;
-
+  @Column({ name: 'expiration_year' })
+  expirationYear: string;
+  @Column({ name: 'expiration_month' })
+  expirationMonth: string;
   @Column({ type: 'enum', enum: StatusEnum, default: StatusEnum.ACTIVATED })
   status: number;
-
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  created_at: Date;
-
+  createdAt: Date;
   @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updated_at: Date;
-
+  updatedAt: Date;
 }

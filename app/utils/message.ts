@@ -55,8 +55,10 @@ export const parseValidationErrors = (errors: ValidationError[]): string => {
         return valueproperty;
       },
       '',
-    );
+      );
     return `${acc}${acc ? '-- ' : ''}${property}`;
-  }, '');
+  },
+    '',
+  );
   return `${errorMessages}`;
 };
