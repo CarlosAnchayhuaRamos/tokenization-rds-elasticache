@@ -26,10 +26,10 @@ export class TokensService {
         where: [
           {
             email: param.email,
-            cardNumber: param.cardNumber,
+            card_number: param.cardNumber,
             cvv: param.cvv,
-            expirationYear: param.expirationYear,
-            expirationMonth: param.expirationMonth,
+            expiration_year: param.expirationYear,
+            expiration_month: param.expirationMonth,
           }],
       });
 
