@@ -21,14 +21,14 @@ export class Tokens {
   card_number: number;
   @Column()
   cvv: number;
-  @Column({ name: 'expiration_year' })
+  @Column()
   expiration_year: string;
-  @Column({ name: 'expiration_month' })
+  @Column()
   expiration_month: string;
   @Column({ type: 'enum', enum: StatusEnum, default: StatusEnum.ACTIVATED })
   status: number;
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt: Date;
+  created_at: Date;
   @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updatedAt: Date;
+  updated_at: Date;
 }

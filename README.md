@@ -38,12 +38,12 @@ _A continuación, se muestra un ejemplo de cómo instalar y configurar la aplica
 
   POST - https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/tokenization
 
-  POST - https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/findData
+  GET - https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/findData/{token}
 
 ### functions:
 
   tokenization: tokenization-ts-dev-tokenization
-  findData: tokenization-ts-dev-findData
+  findData: tokenization-ts-dev-findData2
 
 ### Paso 1 - tokenization:
 Para uso del endpoint es necesario que tengamos una tarjeta registrada en la base de datos Postgresql. Puedes usar mi tarjeta, pero no gastes mucho:
@@ -67,13 +67,9 @@ pk_test_LsRBKejzCOEEWOsw
 Esto nos trae como respuesta un token el cúal podemos usar luego para obtener los datos de la tarjeta menos el cvv
 
 ### Paso 2 - findData:
-Para uso  del endpoint es necesario que tengamos el token para identificar la tarjeta:
+Para uso  del endpoint es necesario que tengamos el token para identificar la tarjeta y agregarlo en la ruta:
 
-```body
-{
-    'token': 'token generado de la tokenización'
-}
-``` 
+https://7hrff9sao3.execute-api.us-east-1.amazonaws.com/dev/findData/'token generado de la tokenización'
 
 Para la autorización tienes que agregarle lo siguiente:
 

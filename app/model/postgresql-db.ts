@@ -5,12 +5,12 @@ dotenv.config();
 
 export const myDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DATABASE_HOST,
+  host: 'database-3.chzoewnvixcm.us-east-1.rds.amazonaws.com',
   port: 5432,
-  username: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DB_NAME,
-  entities: [Tokens], // Lista de entidades definido,
+  username: 'postgres',
+  password: 'postgres',
+  database: 'datababase1',
+  entities: [Tokens],
   logging: true,
   synchronize: true,
   ssl: {

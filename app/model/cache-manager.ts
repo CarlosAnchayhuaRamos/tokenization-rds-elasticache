@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const client  = createClient({
-  url: process.env.EC_URL,
+  url: 'redis://testingredis2.vs1sss.clustercfg.memorydb.us-east-1.amazonaws.com:6379',
   socket: { tls: false },
 });
 

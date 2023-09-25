@@ -26,6 +26,7 @@ export const tokenization: Handler = async (event: any, context: Context) => {
     });
     const response = await tokensController.tokenization(event);
     await myDataSource.destroy();
+    console.log('Data Source has finalized!');
     return response;
   } catch (error) {
     console.error('Error al conectar a la base de datos:', error);
@@ -49,6 +50,7 @@ export const findData: Handler = async (event: any, context: Context) => {
     });
     const response = await tokensController.findData(event);
     await myDataSource.destroy();
+    console.log('Data Source has finalized!');
 
     return response;
   } catch (error) {

@@ -35,10 +35,9 @@ export class TokensController {
   async findData (event: APIGatewayEvent) {
     try {
       if (event.headers['Authorization'] !== 'Bearer pk_test_LsRBKejzCOEEWOsw') {
-        throw new Error('Token inconrrecto.');
+        throw new Error('Token del header inconrrecto.');
       }
-      const param = JSON.parse(event.body);
-      const result = await this.tokensService.findData(param.token);
+      const result = await this.tokensService.findData(event.pathParameters.token);
       return MessageUtil.success(result);
     } catch (err) {
       console.error(err);

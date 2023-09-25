@@ -42,9 +42,9 @@ functions:
       - http:
           path: tokenization
           method: POST
-  findData:
+  findData2:
     handler: app/handler.findData
     events:
       - http:
-          path: findData
-          method: POST
+          path: findData/{token}
+          method: GET

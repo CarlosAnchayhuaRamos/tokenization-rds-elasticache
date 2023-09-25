@@ -63,7 +63,6 @@ export class TokensService {
 
     const { email, card_number, cvv, expiration_year, expiration_month } = objeto;
 
-    // Validación de email
     if (typeof email !== 'string'
     || email?.length < 5
     || email?.length > 100
@@ -71,14 +70,12 @@ export class TokensService {
       return false;
     }
 
-    // Validación de cvv
     if (typeof cvv !== 'number'
     || (cvv < 100 || cvv > 9999)
     || (cvv.toString()?.length !== 3
     && cvv.toString()?.length !== 4)) {
       return false;
     }
-    // Validación de card_number
     if (typeof card_number !== 'number'
     || (card_number.toString()?.length < 13
     || card_number.toString()?.length > 16)
@@ -86,7 +83,6 @@ export class TokensService {
       return false;
     }
 
-    // Validación de expiration_year
     const yearActual = new Date().getFullYear();
     if (typeof expiration_year !== 'number'
       || expiration_year.toString()?.length !== 4
@@ -94,7 +90,7 @@ export class TokensService {
       || expiration_year > yearActual + 5) {
       return false;
     }
-    // Validación de expiration_month
+
     if (typeof expiration_month !== 'number'
       || (expiration_month < 1
       || expiration_month > 12)
@@ -131,7 +127,6 @@ export class TokensService {
    */
   async findData (param: string): Promise<object> {
     try {
-
       if (await !this.validarToken(param)) {
         throw new Error('Token invalido.');
       }
@@ -140,11 +135,14 @@ export class TokensService {
 
       const value = await client.get(param);
 
+      console.log('value');
+      console.log(value);
+
       const objeto = JSON.parse(value);
 
       await client.quit();
 
-      if (objeto) {
+      if (!objeto) {
         throw new Error('Token vencido o no encontrado.');
       }
 
@@ -162,13 +160,10 @@ export class TokensService {
     }
   }
 
-  validarToken(token: string) {
-    if (token?.length !== 16) {
-      return false;
-    }
-
-    const caracteresUnicos = new Set(token);
-    const esAlfanumerico = /^[0-9a-zA-Z]+$/.test(token);
-    return caracteresUnicos.size === 16 && esAlfanumerico;
+  validarToken(cadena) {
+    // Verifica si la cadena contiene solo letras mayúsculas, minúsculas o números
+    const regex = /^[A-Za-z0-9]{16}$/;
+    // Comprueba si la cadena tiene 16 caracteres y cumple con la expresión regular
+    return regex.test(cadena);
   }
 }
